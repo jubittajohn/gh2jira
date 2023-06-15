@@ -35,29 +35,22 @@ import (
 
 func PrintGithubIssue(issue *github.Issue, oneline bool, color bool) {
 
-	// fmt.Printf("%5d %s %+v\n", issue.GetNumber(), issue.GetTitle(), issue.GetMilestone())
-	// return
-
 	if oneline {
 		if color {
 			// print the id in yellow, then reset the rest of the line
-			fmt.Printf("\033[33m%5d\033[0m \033[32m%s\033[31m %s\033[0m %s\n", issue.GetNumber(), issue.GetState(), *issue.GetAssignee().Login, issue.GetTitle())
+			fmt.Printf("\033[33m%5d\033[0m \033[32m %s\033[0m %s\n", issue.GetNumber(), issue.GetState(), issue.GetTitle())
 		} else {
 			fmt.Printf("%5d %s %s %s\n", issue.GetNumber(), issue.GetState(), *issue.GetAssignee().Login, issue.GetTitle())
 		}
 	} else {
-		// fmt.Println(*issue.ID)
 		fmt.Printf("Issue:\t%d\n", issue.GetNumber())
-		// fmt.Println(*issue.Title)
 		fmt.Printf("State:\t%s\n", issue.GetState())
 		if issue.GetAssignee() != nil {
 			fmt.Printf("Assignee:\t%s\n", *issue.GetAssignee().Login)
 		}
 
 		// NOTE: This should be the jira body
-		// fmt.Printf("Title:\t%s\n", issue.GetTitle())
 		fmt.Printf("\n   %s\n\n", issue.GetTitle())
-		// fmt.Printf("Body:\n\t%s\n", issue.GetBody())
 
 		// Look through the labels
 		// important soon should be Urgent

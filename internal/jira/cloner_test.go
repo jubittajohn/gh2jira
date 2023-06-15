@@ -21,7 +21,7 @@ import (
 	"os"
 	"strings"
 
-	gojira "github.com/andygrunwald/go-jira"
+	gojira "github.com/andygrunwald/go-jira/v2/cloud"
 	"github.com/google/go-github/v47/github"
 	jmock "github.com/jmrodri/gh2jira/internal/jira/mock"
 
@@ -148,6 +148,7 @@ var _ = Describe("Cloner", func() {
 			}()
 			os.Stdout = w
 			go func() {
+				defer GinkgoRecover()
 				// Test the clone function
 				_, err := Clone(ghissue, WithClient(mockedHTTPClient),
 					WithDryRun(true),

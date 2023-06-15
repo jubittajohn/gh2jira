@@ -29,6 +29,7 @@ var (
 	project   string
 	ghproject string
 	tokenFile string
+	configFile string
 )
 
 func NewCmd() *cobra.Command {
@@ -52,10 +53,18 @@ WARNING! This will write to your jira instance. Use --dryrun to see what will ha
 				if err != nil {
 					return err
 				}
+
+				jiraCfg, err := jira.LoadConfig(configFile)
+				if err != nil {
+					return err
+				}
+
 				_, err = jira.Clone(issue,
 					jira.WithToken(tokens.JiraToken),
 					jira.WithProject(project),
 					jira.WithDryRun(dryRun),
+					jira.WithJiraURL(jiraCfg.JiraBaseURL),
+					jira.WithJiraUsername(jiraCfg.JiraUsername),
 				)
 				if err != nil {
 					return nil
@@ -65,6 +74,7 @@ WARNING! This will write to your jira instance. Use --dryrun to see what will ha
 		},
 	}
 
+	cmd.Flags().StringVar(&configFile, "config", "jiraConfig.yaml", "Jira config file")
 	cmd.Flags().StringVar(&tokenFile, "token-file", "tokens.yaml",
 		"file containing github and jira tokens")
 	cmd.Flags().BoolVar(&dryRun, "dryrun", false, "display what we would do without cloning")
