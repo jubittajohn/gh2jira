@@ -15,13 +15,11 @@
 package jira
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
-	"context"
-	"io/ioutil"
-	"encoding/json"
 
 	gojira "github.com/andygrunwald/go-jira/v2/cloud"
 	"github.com/google/go-github/v47/github"
@@ -30,11 +28,11 @@ import (
 type Option func(*ClonerConfig) error
 
 type ClonerConfig struct {
-	client  *http.Client
-	token   string
-	dryRun  bool
-	project string
-	jiraURL string
+	client       *http.Client
+	token        string
+	dryRun       bool
+	project      string
+	jiraURL      string
 	jiraUsername string
 }
 
@@ -44,7 +42,7 @@ func (c *ClonerConfig) setDefaults() error {
 			return errors.New("cannot create jira client without a token")
 		}
 		tp := &gojira.BasicAuthTransport{
-			APIToken: c.token, 
+			APIToken: c.token,
 			Username: c.jiraUsername,
 		}
 		c.client = tp.Client()
@@ -94,47 +92,11 @@ func WithJiraUsername(u string) Option {
 	}
 }
 
-
 func getWebURL(url string) string {
 	if url == "" {
 		return url
 	}
 	return strings.Replace(strings.Replace(url, "api.github.com", "github.com", 1), "repos/", "", 1)
-}
-
-func getJiraAccountID(jiraURL string, httpClient *http.Client) (string, error) {
-	url := fmt.Sprintf("%s/rest/api/latest/myself", jiraURL)
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("failed to retrieve user information. Status code: %d", resp.StatusCode)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	} 
-
-	var data struct {
-		AccountID string `json:"accountId"`
-	}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return "", err
-	}
-	accountID := data.AccountID
-
-	return accountID, nil
 }
 
 func Clone(issue *github.Issue, opts ...Option) (*gojira.Issue, error) {
@@ -155,26 +117,16 @@ func Clone(issue *github.Issue, opts ...Option) (*gojira.Issue, error) {
 		return nil, err
 	}
 
-	//Gets the jira accountID for the user creating the issue
-	accountID, err := getJiraAccountID(config.jiraURL, config.client)
-	if err != nil {
-		fmt.Printf("Failed to retrieve Jira account ID: %s", err)
-		return nil, err
-	}
-
 	ji := gojira.Issue{
-		Fields : &gojira.IssueFields{
-			Type:        gojira.IssueType{
+		Fields: &gojira.IssueFields{
+			Description: fmt.Sprintf("%s\n\nUpstream Github issue: %s\n", issue.GetBody(), getWebURL(issue.GetURL())),
+			Type: gojira.IssueType{
 				Name: "Story",
 			},
-			Project:     gojira.Project{
+			Project: gojira.Project{
 				Key: config.project,
 			},
-			Reporter:    &gojira.User{
-				AccountID: accountID,
-			},
-			Description: fmt.Sprintf("%s\n\nUpstream Github issue: %s\n", issue.GetBody(), getWebURL(issue.GetURL())),
-			Summary:     fmt.Sprintf("[UPSTREAM] %s #%d", issue.GetTitle(), issue.GetNumber()),
+			Summary: fmt.Sprintf("[UPSTREAM] %s #%d", issue.GetTitle(), issue.GetNumber()),
 		},
 	}
 
@@ -195,7 +147,7 @@ func Clone(issue *github.Issue, opts ...Option) (*gojira.Issue, error) {
 		// actually send issue create command
 		createdIssue, _, err = jiraClient.Issue.Create(context.Background(), &ji)
 		if err != nil {
-			fmt.Printf("Error cloning issue: %v", err)
+			fmt.Printf("Error cloning issue: %v", err.Error())
 			return createdIssue, err
 		}
 

@@ -12,20 +12,17 @@ A utility that allows you to copy a Github issue to Jira
 ## Getting Started
 The gh2jira utility expects the following environment variables to be set: `GITHUB_TOKEN` and `JIRA_TOKEN`.
 
-### Setting Up Github Token
+### Creating Tokens
+#### Setting Up Github Token
 1. Follow the instructions [here](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-personal-access-token-classic) to create a personal access token, being sure to only limit the scope of the token to "public_repo" and "read:project".
-2. Copy the token created above and use it to set the `GITHUB_TOKEN` environment variable:
-```
-export GITHUB_TOKEN=<Copied Token>
-```
+2. Save to the `tokens.yaml` file under the key `githubToken`
 
-### Setting Up Jira Token
-1. Follow the instructions [here](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/#Create-an-API-token) to set up an API token.
-2. Copy the token created above and use it to set the `JIRA_TOKEN` environment variable:
-```
-export JIRA_TOKEN=<Copied Token>
-```
+#### Setting Up Jira Personal Access Token
+1. Follow the instructions [here](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html#UsingPersonalAccessTokens-CreatingPATsintheapplication) to set up a Personal Access Token.
+2. Save to the `tokens.yaml` file under the key `jiraToken`
 
+### Configuring the JiraURL
+Specify the required Jira URL in the `jiraConfig.yaml` file under the key `jiraBaseURL` and Jira username under the key `jiraUsername`
 ### Build the Utility
 Run `go build` from the root of the directory.
 

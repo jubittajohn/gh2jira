@@ -9,7 +9,7 @@ import (
 )
 
 type Config struct {
-	JiraBaseURL string `json:"jiraBaseURL"`
+	JiraBaseURL  string `json:"jiraBaseURL"`
 	JiraUsername string `json:"jiraUsername"`
 }
 

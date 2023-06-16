@@ -29,6 +29,5 @@ func NewCmd() *cobra.Command {
 	}
 	// add the child commands: list and clone
 	cmd.AddCommand(list.NewCmd(), clone.NewCmd())
-
 	return cmd
 }

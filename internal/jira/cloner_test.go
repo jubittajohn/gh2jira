@@ -223,7 +223,9 @@ var _ = Describe("Cloner", func() {
 			jissue, err := Clone(ghissue, WithClient(mockedHTTPClient),
 				WithDryRun(false),
 				WithJiraURL("http://localhost"),
+				WithJiraUsername("foo@redhat.com"),
 			)
+
 			Expect(err).NotTo(HaveOccurred())
 			Expect(jissue).NotTo(BeNil())
 			Expect(jissue.Fields.Description).To(Equal(expectedissue.Fields.Description))

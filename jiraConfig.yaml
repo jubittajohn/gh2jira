@@ -1,2 +1,2 @@
-jiraBaseURL: https://gh2jiratest.atlassian.net/ #https://issues.redhat.com/ #https://gh2jiratest.atlassian.net/
+jiraBaseURL: https://gh2jiratest.atlassian.net/
 jiraUsername: jujohn@redhat.com
