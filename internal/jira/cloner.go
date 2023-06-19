@@ -32,7 +32,7 @@ type ClonerConfig struct {
 	token        string
 	dryRun       bool
 	project      string
-	jiraURL      string
+	jiraBaseURL  string
 	jiraUsername string
 }
 
@@ -41,6 +41,7 @@ func (c *ClonerConfig) setDefaults() error {
 		if c.token == "" {
 			return errors.New("cannot create jira client without a token")
 		}
+		fmt.Printf("username %v \n",c.jiraUsername)
 		tp := &gojira.BasicAuthTransport{
 			APIToken: c.token,
 			Username: c.jiraUsername,
@@ -78,9 +79,9 @@ func WithProject(p string) Option {
 	}
 }
 
-func WithJiraURL(j string) Option {
+func WithJiraBaseURL(j string) Option {
 	return func(c *ClonerConfig) error {
-		c.jiraURL = j
+		c.jiraBaseURL = j
 		return nil
 	}
 }
@@ -112,7 +113,7 @@ func Clone(issue *github.Issue, opts ...Option) (*gojira.Issue, error) {
 	}
 
 	// actually send issue create command
-	jiraClient, err := gojira.NewClient(config.jiraURL, config.client)
+	jiraClient, err := gojira.NewClient(config.jiraBaseURL, config.client)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +154,7 @@ func Clone(issue *github.Issue, opts ...Option) (*gojira.Issue, error) {
 
 		if createdIssue != nil {
 			fmt.Printf("Issue cloned; see %s\n",
-				fmt.Sprintf(config.jiraURL+"browse/%s", createdIssue.Key))
+				fmt.Sprintf(config.jiraBaseURL+"browse/%s", createdIssue.Key))
 		}
 	}
 

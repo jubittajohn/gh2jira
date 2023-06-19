@@ -21,14 +21,13 @@ import (
 
 	"github.com/jmrodri/gh2jira/internal/gh"
 	"github.com/jmrodri/gh2jira/internal/jira"
-	"github.com/jmrodri/gh2jira/internal/token"
+	"github.com/jmrodri/gh2jira/internal/config"
 )
 
 var (
 	dryRun     bool
 	project    string
 	ghproject  string
-	tokenFile  string
 	configFile string
 )
 
@@ -40,18 +39,14 @@ func NewCmd() *cobra.Command {
 WARNING! This will write to your jira instance. Use --dryrun to see what will happen`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			tokens, err := token.ReadTokensYaml(tokenFile)
-			if err != nil {
-				return err
-			}
-			jiraCfg, err := jira.LoadConfig(configFile)
+			configs, err := config.ReadFile(configFile)
 			if err != nil {
 				return err
 			}
 			for _, id := range args {
 				issueId, _ := strconv.Atoi(id)
 				issue, err := gh.GetIssue(issueId,
-					gh.WithToken(tokens.GithubToken),
+					gh.WithToken(configs.Tokens.GithubToken),
 					gh.WithProject(ghproject),
 				)
 				if err != nil {
@@ -59,11 +54,11 @@ WARNING! This will write to your jira instance. Use --dryrun to see what will ha
 				}
 
 				_, err = jira.Clone(issue,
-					jira.WithToken(tokens.JiraToken),
+					jira.WithToken(configs.Tokens.JiraToken),
 					jira.WithProject(project),
 					jira.WithDryRun(dryRun),
-					jira.WithJiraURL(jiraCfg.JiraBaseURL),
-					jira.WithJiraUsername(jiraCfg.JiraUsername),
+					jira.WithJiraBaseURL(configs.JiraBaseUrl),
+					jira.WithJiraUsername(configs.JiraUsername),
 				)
 				if err != nil {
 					return nil
@@ -73,9 +68,8 @@ WARNING! This will write to your jira instance. Use --dryrun to see what will ha
 		},
 	}
 
-	cmd.Flags().StringVar(&configFile, "config", "jiraConfig.yaml", "Jira config file")
-	cmd.Flags().StringVar(&tokenFile, "token-file", "tokens.yaml",
-		"file containing github and jira tokens")
+	cmd.Flags().StringVar(&configFile, "config-file", "config.yaml",
+		"file containing configuration")
 	cmd.Flags().BoolVar(&dryRun, "dryrun", false, "display what we would do without cloning")
 	cmd.Flags().StringVar(&project, "project", "OSDK", "Jira project to clone to")
 	cmd.Flags().StringVar(&ghproject, "github-project", "operator-framework/operator-sdk",

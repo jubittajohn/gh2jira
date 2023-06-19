@@ -10,6 +10,7 @@ require (
 	github.com/onsi/gomega v1.20.2
 	github.com/spf13/cobra v1.5.0
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
@@ -36,5 +37,4 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
 )
